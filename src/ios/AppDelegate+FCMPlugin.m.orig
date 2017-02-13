@@ -12,7 +12,9 @@
 
 #import "Firebase.h"
 
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 @import UserNotifications;
+#endif
 
 @import FirebaseInstanceID;
 @import FirebaseMessaging;
@@ -20,8 +22,10 @@
 // Implement UNUserNotificationCenterDelegate to receive display notification via APNS for devices
 // running iOS 10 and above. Implement FIRMessagingDelegate to receive data message via FCM for
 // devices running iOS 10 and above.
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 @interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
 @end
+#endif
 
 // Copied from Apple's header in case it is missing in some cases (e.g. pre-Xcode 8 builds).
 #ifndef NSFoundationVersionNumber_iOS_9_x_Max
@@ -71,6 +75,7 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
             [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
         } else {
             // iOS 10 or later
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
             UNAuthorizationOptions authOptions =
             UNAuthorizationOptionAlert
             | UNAuthorizationOptionSound
@@ -82,6 +87,7 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
             [UNUserNotificationCenter currentNotificationCenter].delegate = self;
             // For iOS 10 data message (sent via FCM)
             [FIRMessaging messaging].remoteMessageDelegate = self;
+#endif
         }
         
         [[UIApplication sharedApplication] registerForRemoteNotifications];
@@ -99,6 +105,7 @@ NSString *const kGCMMessageIDKey = @"gcm.message_id";
 
 // [START message_handling]
 // Receive displayed notifications for iOS 10 devices.
+#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 // Handle incoming notification messages while app is in the foreground.
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
@@ -151,7 +158,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
     
     completionHandler();
 }
-#if defined(__IPHONE_99_0)
+#else
 // [START receive_message in background iOS < 10]
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"Message ID: %@", userInfo[@"gcm.message_id"]);
